@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Consent</title>
+    <!-- ฟอนต์ทางการ: Sarabun (ไทย) + Inter (อังกฤษ) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #f5f3fa;
+            font-family: 'Sarabun', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            color: #1f1a2e;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== หน้าโหลด ===== */
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh; width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            z-index: 3;
+        }
+        .loading-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #4c2a85;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+        .loading-subtitle {
+            font-size: 14px;
+            color: #6b6382;
+            margin-bottom: 28px;
+        }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid #e8e3f5;
+            border-top: 3px solid #7c4dff;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== Progress Bar ===== */
+        .progress-container {
+            width: 85%;
+            max-width: 360px;
+            height: 8px;
+            background-color: #f0ecfa;
+            border-radius: 6px;
+            margin-top: 24px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #7c4dff, #9d6dff);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4c2a85;
+            margin-top: 12px;
+        }
+        .progress-status {
+            font-size: 12px;
+            color: #8b7fa8;
+            margin-top: 6px;
+        }
+
+        /* ===== Cookie Consent Overlay ===== */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh; width: 100vw;
+            display: none;
+            align-items: center;      /* จัดกลางแนวตั้ง */
+            justify-content: center;  /* จัดกลางแนวนอน */
+            background-color: rgba(31, 26, 46, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 2;
+            padding: 16px;
+        }
+
+        .cookie-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 32px 36px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(76, 42, 133, 0.25),
+                        0 4px 12px rgba(76, 42, 133, 0.08);
+            border: 1px solid #ece7f7;
+            animation: popIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .cookie-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .cookie-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            background-color: #f0ecfa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .cookie-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: #1f1a2e;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .cookie-text {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #4a4459;
+            margin: 0 0 10px 0;
+        }
+        .cookie-text a {
+            color: #7c4dff;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .cookie-text a:hover {
+            color: #5c30d9;
+        }
+
+        .cookie-detail {
+            font-size: 12.5px;
+            color: #8b7fa8;
+            line-height: 1.6;
+            margin: 0 0 24px 0;
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 14.5px;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            border: 1.5px solid transparent;
+            letter-spacing: -0.005em;
+        }
+        .btn-primary {
+            background-color: #7c4dff;
+            color: #ffffff;
+            border-color: #7c4dff;
+            box-shadow: 0 2px 8px rgba(124, 77, 255, 0.28);
+        }
+        .btn-primary:hover {
+            background-color: #6a3de8;
+            border-color: #6a3de8;
+            box-shadow: 0 4px 14px rgba(124, 77, 255, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 4px rgba(124, 77, 255, 0.28);
+        }
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #4c2a85;
+            border-color: #d8cef0;
+        }
+        .btn-secondary:hover {
+            background-color: #f7f4fd;
+            border-color: #b8a6e0;
+        }
+        .btn-secondary:active {
+            background-color: #f0ecfa;
+        }
+
+        /* ===== หน้าแกล้ง ===== */
+        .scare {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 1;
+            display: none;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 480px) {
+            .cookie-card {
+                padding: 24px 22px;
+                border-radius: 14px;
+            }
+            .cookie-title {
+                font-size: 17px;
+            }
+            .cookie-text {
+                font-size: 13px;
+            }
+            .cookie-detail {
+                font-size: 12px;
+            }
+            .btn {
+                font-size: 14px;
+                padding: 11px 16px;
+            }
+            .cookie-buttons {
+                flex-direction: column-reverse;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== หน้าโหลด ===== -->
+    <div id="loading-screen" class="loading-screen">
+        <p class="loading-title">กำลังโหลดข้อมูล</p>
+        <p class="loading-subtitle">กรุณารอสักครู่ ระบบกำลังเตรียมเนื้อหา</p>
+        <div class="spinner"></div>
+
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <p class="progress-text" id="loading-percent">0%</p>
+        <p class="progress-status" id="loading-status">กำลังเชื่อมต่อ...</p>
+    </div>
+
+    <!-- ===== Cookie Consent (กลางจอ) ===== -->
+    <div id="overlay" class="overlay">
+        <div class="cookie-card">
+            <div class="cookie-header">
+                <div class="cookie-icon">🍪</div>
+                <h2 class="cookie-title">เว็บไซต์นี้ใช้คุกกี้</h2>
+            </div>
+
+            <p class="cookie-text">
+                เราใช้คุกกี้เพื่อเพิ่มประสิทธิภาพการทำงานของเว็บไซต์
+                และมอบประสบการณ์ที่ดีที่สุดให้กับคุณ
+                การใช้งานเว็บไซต์ต่อไปถือว่าคุณยอมรับ
+                <a href="#">นโยบายความเป็นส่วนตัว</a> และ
+                <a href="#">ข้อกำหนดการใช้งาน</a> ของเรา
+            </p>
+
+            <p class="cookie-detail">
+                คุณสามารถเลือกยอมรับคุกกี้ทั้งหมด หรือปรับแต่งการตั้งค่า
+                ตามความต้องการของคุณได้ตลอดเวลา
+            </p>
+
+            <div class="cookie-buttons">
+                <button id="decline-button" class="btn btn-secondary">ตั้งค่าคุกกี้</button>
+                <button id="accept-button" class="btn btn-primary">ยอมรับทั้งหมด</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scare" class="scare">
+        <video id="video" playsinline loop></video>
+    </div>
+
+    <script>
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingPercent = document.getElementById('loading-percent');
+        const loadingStatus = document.getElementById('loading-status');
+        const progressBar = document.getElementById('progress-bar');
+        const overlay = document.getElementById('overlay');
+        const scare = document.getElementById('scare');
+        const video = document.getElementById('video');
+
+        const DATA_URI_URL = 'https://raw.githubusercontent.com/s-m-ai/PumpkitzHUB/refs/heads/main/Xesitz';
+
+        const BOOST_LEVEL = 10.0;
+
+        let audioContext = null;
+        let source = null;
+        let gain1, gain2, gain3;
+        let audioSetupDone = false;
+
+        function updateProgress(percent, statusText) {
+            progressBar.style.width = percent + '%';
+            loadingPercent.textContent = percent + '%';
+            if (statusText) loadingStatus.textContent = statusText;
+        }
+
+        function loadVideoWithProgress() {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', DATA_URI_URL, true);
+                xhr.responseType = 'text';
+
+                xhr.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        const percent = Math.round((event.loaded / event.total) * 100);
+                        const scaled = Math.round(percent * 0.9);
+                        updateProgress(scaled, `กำลังโหลด... (${Math.round(event.loaded/1024/1024)} MB / ${Math.round(event.total/1024/1024)} MB)`);
+                    } else {
+                        updateProgress(45, `กำลังโหลด... (${Math.round(event.loaded/1024/1024)} MB)`);
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        updateProgress(90, 'โหลดครบแล้ว กำลังเตรียมเนื้อหา...');
+                        resolve(xhr.responseText.trim());
+                    } else {
+                        reject(new Error('HTTP ' + xhr.status));
+                    }
+                };
+
+                xhr.onerror = function() {
+                    reject(new Error('Network error'));
+                };
+
+                xhr.send();
+            });
+        }
+
+        function prepareVideo(dataURI) {
+            return new Promise((resolve, reject) => {
+                video.src = dataURI;
+                video.load();
+
+                const progressInterval = setInterval(() => {
+                    if (video.readyState >= 3) {
+                        updateProgress(100, 'พร้อมแล้ว');
+                        clearInterval(progressInterval);
+                    } else if (video.readyState === 2) {
+                        updateProgress(95, 'กำลังประมวลผล...');
+                    } else if (video.readyState === 1) {
+                        updateProgress(92, 'กำลังโหลดข้อมูล...');
+                    }
+                }, 100);
+
+                const onReady = () => {
+                    video.removeEventListener('canplaythrough', onReady);
+                    video.removeEventListener('error', onError);
+                    clearInterval(progressInterval);
+                    updateProgress(100, 'พร้อมแล้ว');
+                    resolve();
+                };
+                const onError = (e) => {
+                    video.removeEventListener('canplaythrough', onReady);
+                    video.removeEventListener('error', onError);
+                    clearInterval(progressInterval);
+                    reject(e);
+                };
+
+                video.addEventListener('canplaythrough', onReady, { once: true });
+                video.addEventListener('error', onError, { once: true });
+
+                setTimeout(() => {
+                    if (video.readyState >= 3) resolve();
+                }, 30000);
+            });
+        }
+
+        function setupMegaBoost() {
+            if (audioSetupDone) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                video.volume = 1.0;
+                source = audioContext.createMediaElementSource(video);
+
+                gain1 = audioContext.createGain();
+                gain1.gain.value = 2.0;
+
+                gain2 = audioContext.createGain();
+                gain2.gain.value = 2.5;
+
+                gain3 = audioContext.createGain();
+                gain3.gain.value = 2.0;
+
+                source.connect(gain1);
+                gain1.connect(gain2);
+                gain2.connect(gain3);
+                gain3.connect(audioContext.destination);
+
+                audioSetupDone = true;
+                console.log(`BOOST: ${BOOST_LEVEL}x`);
+            } catch (err) {
+                console.error('Audio error:', err);
+            }
+        }
+
+        function triggerScare() {
+            overlay.style.display = 'none';
+            scare.style.display = 'block';
+
+            setupMegaBoost();
+
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            video.currentTime = 0;
+            video.play().catch(e => console.log(e));
+        }
+
+        document.getElementById('accept-button').addEventListener('click', triggerScare);
+        document.getElementById('decline-button').addEventListener('click', triggerScare);
+
+        (async function init() {
+            try {
+                updateProgress(0, 'กำลังเชื่อมต่อ...');
+                const dataURI = await loadVideoWithProgress();
+                await prepareVideo(dataURI);
+
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    overlay.style.display = 'flex';
+                }, 400);
+            } catch (err) {
+                console.error('ผิดพลาด:', err);
+                loadingStatus.textContent = 'โหลดไม่สำเร็จ กรุณารีเฟรช';
+                loadingPercent.textContent = 'ผิดพลาด';
+            }
+        })();
+    </script>
+
+</body>
+  </html>
